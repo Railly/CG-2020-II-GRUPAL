@@ -5,7 +5,7 @@ Este repositorio contienen los trabajos grupales del curso de Computación Gráf
 
 ## **Integrantes del grupo**
 
-| Nombre |
+| Integrantes |
 |--|
 | Hugo Quispe, Railly Angelo **----> (C)**|
 | Romero Yañac, Luis Enrique |
