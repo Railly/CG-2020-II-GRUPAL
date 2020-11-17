@@ -5,11 +5,11 @@ Este repositorio contienen los trabajos grupales del curso de Computación Gráf
 
 ## **Integrantes del grupo**
 
-| Nombre | Participación|
-|--|--|
-| Hugo Quispe, Railly Angelo **----> (C)**| 3 |
-| Romero Yañac, Luis Enrique | 2|
-|Romero Angeles, Luis Alfredo Felix| 2|
+| Nombre |
+|--|
+| Hugo Quispe, Railly Angelo **----> (C)**|
+| Romero Yañac, Luis Enrique |
+|Romero Angeles, Luis Alfredo Felix|
 
 
 ## **1. Tarea03-Primitivas**
