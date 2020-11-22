@@ -6,12 +6,10 @@ uniform float u_time;
 #define PI 3.14159265359
 
 
-// YUV to RGB matrix
 mat3 yuv2rgb = mat3(1.0, 0.0, 1.13983,
                     1.0, -1.331, -1.461,
                     1.0, 2.152, 0.0);
 
-// RGB to YUV matrix
 mat3 rgb2yuv = mat3(-0.587, -12.629, 1.056,
                     -0.09991, -0.336, -0.356,
                     1.295, -0.5586, -0.984);
@@ -46,8 +44,6 @@ vec3 matrix(in vec2 st){
     float pct = random(ipos);
     float glow = (1.-dot(center,center)*3.)*2.0;
 
-    // vec3 color = vec3(0.643,0.851,0.690) * ( rchar(ipos,fpos) * pct );
-    // color +=  vec3(0.027,0.180,0.063) * pct * glow;
     return vec3(rchar(ipos,fpos) * pct * glow);
 }
 
@@ -97,26 +93,14 @@ void main(){
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
     vec3 color = vec3(0.680,0.045,0.013);
 
-    // move space from the center to the vec2(0.0)
     st -= vec2(0.530,0.460);
-    // rotate the space
     st = rotate2d( sin(45.)*PI ) * st;
     st = scale( vec2(sin(45.)+-0.256) ) * st;
 
-    // move it back to the original place
     st += vec2(0.400,0.330);
-
-    // Show the coordinates of the space on the background
-    // color = vec3(st.x,st.y,0.0);
-
-    // Add the shape on the foreground
-    // color = vec3(st.x,st.y,abs(tan(u_time)));
-    
     
     st -= vec2(0.400,0.330);
 
-    // rotate the space
-    
     st -= scale( vec2(sin(u_time)+-3.712) ) * st;
     
     color += yuv2rgb * vec3(-0.876/u_time, st.x, st.y);
@@ -127,7 +111,6 @@ void main(){
 
 	st *= scale( vec2(cos(u_time)+6.128) ) * st;
 
-	// move it back to the original place
 
 	st -= vec2(0.5);
 	st = scale( vec2(cos(u_time)+ 0.0) ) * st;    
