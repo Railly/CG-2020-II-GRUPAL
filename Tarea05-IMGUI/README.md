@@ -18,6 +18,6 @@
 
 | Nombre | Participación|
 |--|--|
-| Hugo Quispe, Railly Angelo **----> (C)**| -|
-| Romero Yañac, Luis Enrique | -|
-|Romero Angeles, Luis Alfredo Felix| -|
+| Hugo Quispe, Railly Angelo **----> (C)**| 3|
+| Romero Yañac, Luis Enrique | 2|
+|Romero Angeles, Luis Alfredo Felix| 3|
