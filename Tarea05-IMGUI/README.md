@@ -21,3 +21,7 @@
 | Hugo Quispe, Railly Angelo **----> (C)**| 3|
 | Romero Yañac, Luis Enrique | 2|
 |Romero Angeles, Luis Alfredo Felix| 3|
+
+## **Captura de Pantalla**
+![enter image description here](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea05-IMGUI/img/ss.png)
+
