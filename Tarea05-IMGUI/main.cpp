@@ -1,6 +1,8 @@
-﻿//============================================================================
-// Name        :	Mouse
+//============================================================================
+// Name        :	Tarea 05: IMGUI
 // Student     :	Hugo Quispe, Railly Angelo
+//			Romero Yañac, Luis
+//			Romero Ángeles, Luis
 // Version     :
 // Description :
 //============================================================================
@@ -39,13 +41,15 @@ GLfloat twicePi = 2.0f * M_PI;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 
-float color_fondo[3] = { 1.0f, 1.0f, 1.0f };
-float color_figura[3] = { 136. / 255.0f, 193. / 255.0f, 59. / 255.0f };
+float color_fondo[3] = { 144. / 255.0f, 251. / 255.0f, 232. / 255.0f };
+float color_uno[3] = { 40. / 255.0f, 40. / 255.0f, 40. / 255.0f };
+float color_dos[3] = { 242. / 255.0f, 239. / 255.0f, 232. / 255.0f };
 
 float up = 0.0f;
 float down = 0.0f;
 float left = 0.0f;
 float right = 0.0f;
+float scale = 1.0f;
 
 float curAngle = 0.0f;
 float offset = 0.1f;
@@ -99,8 +103,8 @@ void display(GLFWwindow* window, double currentTime) {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	ImGui::SetNextWindowSize(ImVec2(WIDTH/2, HEIGHT/2));
-	ImGui::SetNextWindowPos(ImVec2(400, 0));
+	ImGui::SetNextWindowSize(ImVec2(WIDTH * 0.75f, HEIGHT * 0.35f));
+	ImGui::SetNextWindowPos(ImVec2(200, 0));
 	/*--[FRAME IMGUI]-----------*/
 
 	/*--[CODIGO IMGUI]-----------*/
@@ -111,28 +115,66 @@ void display(GLFWwindow* window, double currentTime) {
 	window_flags |= ImGuiWindowFlags_MenuBar;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 
+	ImVec2 buttonSize = ImVec2(80.0f, 20.f);
 
 	ImGui::Begin("Panel de Control");
-		ImGui::Text("Figure Color: ");
-		ImGui::ColorEdit3("Edite el color de la figura", color_figura);
-		ImGui::Text("Background Color: ");
+		ImGui::TextColored(ImVec4(0.5, 0.9, 0.5, 1), "Background Color: ");
+		ImGui::Spacing();
+
 		ImGui::ColorEdit3("Edite el color de fondo", color_fondo);
-		if (ImGui::Button("Move UP")) {
-			up = up + 0.2f;
+		ImGui::TextColored(ImVec4(0.5, 0.9, 0.5, 1), "Ying Yang Colors: ");
+		ImGui::Spacing();
+
+		ImGui::ColorEdit3("Edite el color 1", color_uno);
+		ImGui::ColorEdit3("Edite el color 2", color_dos);
+		ImGui::Spacing();
+
+		ImGui::TextColored(ImVec4(0.5, 0.9, 0.5, 1), "Rotation Controls: ");
+		ImGui::Spacing();
+		ImGui::Indent(190.0f);
+
+		if (ImGui::Button("Rotate ++", buttonSize)) {
+			increment = increment + 0.5f;
 		}
-		if (ImGui::Button("Move DOWN")) {
-			down = down - 0.2f;
+		ImGui::SameLine();
+		if (ImGui::Button("Rotate --", buttonSize)) {
+			increment = increment - 0.5f;
 		}
-		if (ImGui::Button("Move RIGHT")) {
-			right = right + 0.2f;
+		ImGui::Unindent(190.0f);
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		ImGui::TextColored(ImVec4(0.5, 0.9, 0.5, 1), "Movement Controls: ");
+		ImGui::Spacing();
+		ImGui::Indent(150.0f);
+		ImGui::Indent(88.0f);
+		if (ImGui::Button("Move UP", buttonSize)) {
+			up = up + 0.05f;
 		}
-		if (ImGui::Button("Move LEFT")) {
-			left = left - 0.2f;
+		ImGui::Unindent(88.0f);
+		ImGui::Spacing();
+
+		if (ImGui::Button("Move LEFT", buttonSize)) {
+			left = left - 0.05f;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Move DOWN", buttonSize)) {
+			down = down - 0.05f;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Move RIGHT", buttonSize)) {
+			right = right + 0.05f;
 		}
 	ImGui::End();
 
+	curAngle -= increment;
+	if (curAngle <= -360)
+	{
+		curAngle += 360;
+	}
+
 	glClear(GL_DEPTH_BUFFER_BIT);
-	glClearColor((double)color_fondo[0], (double)color_fondo[1], (double)color_fondo[2], 1.0);
+	glClearColor(color_fondo[0], color_fondo[1], color_fondo[2], 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(renderingProgram);
@@ -142,106 +184,66 @@ void display(GLFWwindow* window, double currentTime) {
 	GLuint uniformColor = glGetUniformLocation(renderingProgram, "u_color");
 	GLuint uniformModel = glGetUniformLocation(renderingProgram, "u_model");
 
-	//Borde de la cabeza
+	// PINTA CIRCULO NEGRO MAYOR
 	glm::mat4 model(1.0f);
-	model = glm::scale(model, glm::vec3(0.213f, 0.213f, 1.0f));
-	model = glm::translate(model, glm::vec3(0.0f + left + right, 1.28f + up + down, 0.0f));
 
-	glUniform3f(uniformColor, 20. / 255.0f, 25. / 255.0f, 14. / 255.0f);
+	glUniform3f(uniformColor, color_uno[0], color_uno[1], color_uno[2]);
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
 
-	//Cabeza
-	model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 1.0f));
-	model = glm::translate(model, glm::vec3(0.0f + left + right, 1.36f + up + down, 0.0f));
 
-	glUniform3f(uniformColor, color_figura[0], color_figura[1], color_figura[2]);
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
-
-	//Borde Oreja izquierda
-	model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(0.088f, 0.088f, 1.0f));
-	model = glm::translate(model, glm::vec3(-1.82f + left + right, 5.2f + up + down, 0.0f));
-
-	glUniform3f(uniformColor, 20. / 255.0f, 25. / 255.0f, 14. / 255.0f);
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
-
-	//Oreja izquierda
-	model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(0.078f, 0.078f, 1.0f));
-	model = glm::translate(model, glm::vec3(-2.06f + left + right, 5.86f + up + down, 0.0f));
-
-
-	glUniform3f(uniformColor, color_figura[0], color_figura[1], color_figura[2]);
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
-
-	//Borde Oreja derecha
-	model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(0.088f, 0.088f, 1.0f));
-	model = glm::translate(model, glm::vec3(1.82f + left + right, 5.2f + up + down, 0.0f));
-
-	glUniform3f(uniformColor, 20. / 255.0f, 25. / 255.0f, 14. / 255.0f);
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
-
-	//Oreja derecha
-	model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(0.078f, 0.078f, 1.0f));
-	model = glm::translate(model, glm::vec3(2.06f + left + right, 5.86f + up + down, 0.0f));
-
-	glUniform3f(uniformColor, color_figura[0], color_figura[1], color_figura[2]);
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
-	// Cola linea
+	// PINTA SEMICIRCULO BLANCO MAYOR
 	model = glm::mat4(1.0f);
 
-	model = glm::rotate(model, 135 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, glm::vec3(0.36f, 0.36f, 1.0f));
-	model = glm::translate(model, glm::vec3(-1.0f + left + right, -0.5f + up + down, 0.0f));
+	model = glm::rotate(model, curAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(0.98f, 0.98f, 1.0f));
 
-	glUniform3f(uniformColor, 0. / 255.0f, 0. / 255.0f, 0. / 255.0f);
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices / 2 + 1);
-	// Cola fondo
-	model = glm::mat4(1.0f);
-
-	model = glm::rotate(model, 135 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, glm::vec3(0.34f, 0.34f, 1.0f));
-	model = glm::translate(model, glm::vec3(-1.0f + left + right, -0.51f + up + down, 0.0f));
-
-	glUniform3f(uniformColor, color_fondo[0], color_fondo[1], color_fondo[2]);
+	glUniform3f(uniformColor, color_dos[0], color_dos[1], color_dos[2]);
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices / 2 + 1);
 
-	//Borde del Cuerpo
-	model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(0.363f, 0.363f, 1.0f));
-	model = glm::translate(model, glm::vec3(0.0f + left + right, -0.815f + up + down, 0.0f));
 
-	glUniform3f(uniformColor, 30. / 255.0f, 12. / 255.0f, 63. / 255.0f);
+	//PINTA CIRCULO NEGRO MEDIO
+	model = glm::mat4(1.0f);
+	model = glm::scale(model, glm::vec3(0.49f, 0.49f, 1.0f));
+	model = glm::rotate(model, curAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	glUniform3f(uniformColor, color_uno[0], color_uno[1], color_uno[2]);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
-	// Cuerpo
-	model = glm::mat4(1.0f);
-	model = glm::scale(model, glm::vec3(0.35f, 0.35f, 1.0f));
-	model = glm::translate(model, glm::vec3(0.0f + left + right, -0.84f + up + down, 0.0f));
 
-	glUniform3f(uniformColor, color_figura[0], color_figura[1], color_figura[2]);
+
+	//PINTA CIRCULO BLANCO MEDIO
+	model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(0.0f, 2.0f, 0.0f));
 	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	glUniform3f(uniformColor, color_dos[0], color_dos[1], color_dos[2]);
 
+	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
+
+
+	// PINTA CIRCULO BLANCO PEQUEÑO
+	model = glm::mat4(1.0f);
+	model = glm::rotate(model, curAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(0.0f + right + left, -0.49f + up + down, 0.0f));
+	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 1.0f));
+
+	glUniform3f(uniformColor, color_dos[0], color_dos[1], color_dos[2]);
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
+
+
+	// PINTA CIRCULO NEGRO PEQUEÑO
+	model = glm::mat4(1.0f);
+	model = glm::rotate(model, curAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::translate(model, glm::vec3(0.0f + right + left, 0.49f + up + down, 0.0f));
+	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 1.0f));
+
+	glUniform3f(uniformColor, color_uno[0], color_uno[1], color_uno[2]);
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
 
 	glBindVertexArray(0);
