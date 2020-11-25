@@ -265,7 +265,7 @@ int main(void) {
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glEnable(GL_MULTISAMPLE);
 
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Mouse	", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Tarea 05 - IMGUI", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) {
 		exit(EXIT_FAILURE);
