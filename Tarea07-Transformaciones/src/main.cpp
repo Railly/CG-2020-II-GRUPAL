@@ -282,32 +282,12 @@ void display(GLFWwindow* window, double currentTime) {
 	// se obtienen los uniforms del vertex y el fragment shader
 	GLuint uniformColor = glGetUniformLocation(renderingProgram, "u_color");
 	GLuint uniformModelView = glGetUniformLocation(renderingProgram, "u_mv");
-
-    // get ptr to "offset"
-    GLuint offsetLoc = glGetUniformLocation(renderingProgram, "offset");
-    
-    glProgramUniform1f(renderingProgram, offsetLoc, x);
-
 	//time
     GLuint uniform_time = glGetUniformLocation(renderingProgram, "u_time");
     
     glUniform1f(uniform_time,(float)currentTime);
 
-	//INCREMENTARÁ O DECREMENTARÁ EL ANGULO DE ROTACION
-	//DEPENDIENDO DE LA FLECHA PRESIONADA
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-	 	increment += 0.001f;
-	 } else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-	 	if(increment >= 0){
-	 		increment -= 0.1f;
-	 	}
-	 }
-
-	 curAngle -= increment;
-	//  if (curAngle <= -360)
-	//  {
-	//  	curAngle += 360;
-	//  }
+	curAngle -= increment;
 
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.62f ,0.0f));
 	glm::mat4 model(1.0f);
