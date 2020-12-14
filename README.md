@@ -20,10 +20,10 @@ Este repositorio contienen los trabajos grupales del curso de Computación Gráf
 
 ![SSshaders](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea04-Shaders/img/screenshot2.png)
 
-## **2. Tarea05-IMGUI**
+## **3. Tarea05-IMGUI**
 
 ![SSshaders](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea05-IMGUI/img/ss.png)
 
-## **2. Tarea07-Transformaciones**
+## **4. Tarea07-Transformaciones**
 
 ![SSshaders](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea07-Transformaciones/img/ss2.png)
