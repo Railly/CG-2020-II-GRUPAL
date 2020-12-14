@@ -34,7 +34,7 @@ Diseñar una aplicación gráfica que simula el funcionamiento de un reloj de P�
 | Nombre | Participación|
 |--|--|
 | Hugo Quispe, Railly Angelo **----> (C)**| 3|
-| Ambrocio Milla, Katherine Celine| 2|
+| Ambrocio Milla, Katherine Celine| 3|
 |Romero Angeles, Luis Alfredo Felix| 2|
 
 ## **Captura de Pantalla**
