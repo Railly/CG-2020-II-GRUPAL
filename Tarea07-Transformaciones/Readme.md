@@ -1,4 +1,4 @@
-# Tarea 05 - IMGUI
+# Tarea 06 - Transformaciones
 
 Diseñar una aplicación gráfica que simula el funcionamiento de un reloj de Péndulo
 
