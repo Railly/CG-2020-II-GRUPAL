@@ -1,4 +1,4 @@
-# Tarea 06 - Transformaciones
+# Tarea 07 - Transformaciones
 
 Diseñar una aplicación gráfica que simula el funcionamiento de un reloj de Péndulo
 
