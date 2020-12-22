@@ -26,4 +26,4 @@ Este repositorio contienen los trabajos grupales del curso de Computación Gráf
 
 ## **4. Tarea07-Transformaciones**
 
-![SSshaders](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea07-Transformaciones/img/ss2.png)
+![enter image description here](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea07-Transformaciones/img/ss3.jpeg)
