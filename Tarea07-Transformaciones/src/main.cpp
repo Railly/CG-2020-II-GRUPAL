@@ -1,6 +1,8 @@
 //============================================================================
 // Name        :	Mouse
 // Student     :	Hugo Quispe, Railly Angelo
+// Student     :	Ambrosio Milla, Katherine
+// Student     :	Romero Angeles, Luis
 // Version     :
 // Description :
 //============================================================================
@@ -561,6 +563,30 @@ void display(GLFWwindow* window, double currentTime) {
 	glUniformMatrix4fv(uniformModelView, 1, GL_FALSE, glm::value_ptr(mv));
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
+
+	// Sonrisa Lin
+	model = glm::mat4 (1.0f);
+	model = glm::rotate(model,  122 * toRadians, glm::vec3(0, 0, 1));
+	model = glm::scale(model, glm::vec3(0.14f,0.14f,1.0f));
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
+	mv = view * model;
+
+	glUniform3f(uniformColor, 80./255.0f, 25./255.0f, 25./255.0f);
+	glUniformMatrix4fv(uniformModelView, 1, GL_FALSE, glm::value_ptr(mv));	
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices/3 + 1);
+
+	// Sonrisa Fon
+	model = glm::mat4 (1.0f);
+	model = glm::rotate(model,  122 * toRadians, glm::vec3(0, 0, 1));
+	model = glm::scale(model, glm::vec3(0.13f,0.13f,1.0f));
+	model = glm::translate(model, glm::vec3(0.03f, -0.02f, 1.0f));
+	mv = view * model;
+
+	glUniform3f(uniformColor, 247./255.0f, 179./255.0f, 148./255.0f);
+	glUniformMatrix4fv(uniformModelView, 1, GL_FALSE, glm::value_ptr(mv));
+	
+	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices/3 + 1);
 
 	//Oreja Izquierda
 	model = glm::mat4 (1.0f);
