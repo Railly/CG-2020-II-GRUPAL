@@ -1,6 +1,10 @@
-#version 330                                                                  
+#version 430                                                                 
                                                                               
-layout (location = 0) in vec3 pos;								  
+layout (location = 0) in vec3 pos;
+layout (location = 1) in vec2 texCoord;				
+out vec2 tc;		
+
+layout(binding = 0) uniform sampler2D samp;
                                                                               
 uniform mat4 u_mv; 
 uniform float u_time;
@@ -44,6 +48,7 @@ void main() {
     }  else {
         gl_Position = u_mv * vec4(pos, 1.0);
     }
+    tc = texCoord;
 }
 // builds and returns a matrix that performs a rotation around the Z axis
 mat4 buildRotateZ(float rad) {
