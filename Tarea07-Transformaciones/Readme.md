@@ -42,4 +42,4 @@ Diseñar una aplicación gráfica que simula el funcionamiento de un reloj de P�
 
 ![enter image description here](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea07-Transformaciones/img/ss1.png)
 
-![enter image description here](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea07-Transformaciones/img/ss3.png)
+![enter image description here](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea07-Transformaciones/img/ss3.jpeg)
