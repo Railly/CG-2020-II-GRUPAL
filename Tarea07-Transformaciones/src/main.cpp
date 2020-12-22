@@ -14,13 +14,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <SOIL2/SOIL2.h>
 
 #define _USE_MATH_DEFINES
 #define M_PI 3.14159265358979323846
 #define HEIGHT 1000
 #define WIDTH 1000
 #define numVAOs 1
-#define numVBOs 12
+#define numVBOs 13
 
 /*--------------- VARIABLES GLOBALES --------------- */
 const float toRadians = 3.14159265f / 180.0f;
@@ -37,6 +38,8 @@ GLfloat twicePi = 2.0f * M_PI;
 
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
+GLuint textureGold;
+GLuint textureWood;
 
 float curAngle = 192.0f;
 float curAngle2 = 90.0f;
@@ -212,6 +215,13 @@ void init (GLFWwindow* window) {
 		 0.02f, -0.02f, 0.0f,
 		 0.0f,  0.2f, 0.0f
 	};
+
+	float vTextureGold[12] {
+		0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f
+	};
 	
 	glGenVertexArrays(numVAOs, vao);
 	glBindVertexArray(vao[0]);
@@ -264,6 +274,10 @@ void init (GLFWwindow* window) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[11]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vPositions2), vPositions2, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[12]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vTextureGold), vTextureGold, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 	glEnableVertexAttribArray(0);
@@ -282,12 +296,32 @@ void display(GLFWwindow* window, double currentTime) {
 	// se obtienen los uniforms del vertex y el fragment shader
 	GLuint uniformColor = glGetUniformLocation(renderingProgram, "u_color");
 	GLuint uniformModelView = glGetUniformLocation(renderingProgram, "u_mv");
+
+    // get ptr to "offset"
+    GLuint offsetLoc = glGetUniformLocation(renderingProgram, "offset");
+    
+    glProgramUniform1f(renderingProgram, offsetLoc, x);
+
 	//time
     GLuint uniform_time = glGetUniformLocation(renderingProgram, "u_time");
     
     glUniform1f(uniform_time,(float)currentTime);
 
-	curAngle -= increment;
+	//INCREMENTARÁ O DECREMENTARÁ EL ANGULO DE ROTACION
+	//DEPENDIENDO DE LA FLECHA PRESIONADA
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+	 	increment += 0.001f;
+	 } else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+	 	if(increment >= 0){
+	 		increment -= 0.1f;
+	 	}
+	 }
+
+	 curAngle -= increment;
+	//  if (curAngle <= -360)
+	//  {
+	//  	curAngle += 360;
+	//  }
 
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.62f ,0.0f));
 	glm::mat4 model(1.0f);
@@ -303,6 +337,7 @@ void display(GLFWwindow* window, double currentTime) {
 
 	glUniform3f(uniformColor, 243./255.0f, 183./255.0f, 7./255.0f);
 	glUniformMatrix4fv(uniformModelView, 1, GL_FALSE, glm::value_ptr(mv));
+	//glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
 	glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, numberOfVertices2, 3);
 	
 	//Circulo manejado en vertex shader
@@ -316,6 +351,13 @@ void display(GLFWwindow* window, double currentTime) {
 
 	glUniform3f(uniformColor, 245./255.0f, 252./255.0f, 237./255.0f);
 	glUniformMatrix4fv(uniformModelView, 1, GL_FALSE, glm::value_ptr(mv));
+
+	
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[11]);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	//glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
 	glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, numberOfVertices2, 2);
 
 	//Borde de la cabeza
@@ -427,6 +469,13 @@ void display(GLFWwindow* window, double currentTime) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[12]);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureWood);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices/6);
 
@@ -709,12 +758,19 @@ void display(GLFWwindow* window, double currentTime) {
 
 	mv = view * model;
 
+	glUniform3f(uniformColor, 237./255.0f, 191./255.0f, 71./255.0f);
+	glUniformMatrix4fv(uniformModelView, 1, GL_FALSE, glm::value_ptr(mv));
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 	
-	glUniform3f(uniformColor, 237./255.0f, 191./255.0f, 71./255.0f);
-	glUniformMatrix4fv(uniformModelView, 1, GL_FALSE, glm::value_ptr(mv));
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[12]);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureGold);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
 
@@ -731,7 +787,7 @@ int main(void) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  //
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            //
-	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); 	// Resizable option.
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE); 	// Resizable option.
 	//Antialiasing
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glEnable(GL_MULTISAMPLE);  
@@ -744,6 +800,9 @@ int main(void) {
     glfwSwapInterval(1);
     
     init(window);
+	textureGold = Utils::loadTexture("gold.jpg");
+	textureWood = Utils::loadTexture("wood.jpg");
+
     while (!glfwWindowShouldClose(window)) {
 		display(window, (double)glfwGetTime());
 		glfwSwapBuffers(window);
