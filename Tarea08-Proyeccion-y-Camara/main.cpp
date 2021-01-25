@@ -1,4 +1,3 @@
-
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <glad/glad.h>
@@ -26,6 +25,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
 const float toRadians = 3.14159265f / 180.0f;
+const float toDegrees = 180.0f / 3.14159265f;
 
 bool activated = true;
 
@@ -43,6 +43,11 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+// gravity
+const double g = 9.8;
+
+//activation camera
+bool act = true;
 
 int main()
 {
@@ -90,6 +95,32 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
 
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
+
+    Shader tankShader("vertShader.glsl", "fragShader.glsl");
+    Shader wallShader("vertShader.glsl", "fragShader.glsl");
+    Shader canonShader("lampVertShader.glsl", "lampFragShader.glsl");
+    Shader bulletShader("vertShader.glsl", "fragShader.glsl");
+
+    Model tank("finalTank.obj");
+    Model target("finalTarget.obj");
+    Model bullet("finalBullet.obj");
+    Model canon("finalCanon.obj");
+
+    float time = 2.f; // two seconds
+
+    float previous = glfwGetTime();
+
+    bool oneTime = true;
+    bool oneTime2 = true;
+    bool oneTime3 = true;
+    bool oneTime4 = true;
+    bool oneTime5 = true;
+
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = glfwGetTime();
@@ -102,11 +133,93 @@ int main()
 
         glClearColor(39.0f/255.0f, 82.0f / 255.0f, 117.0f / 255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        Model tank("finalTank.obj");
-        Model target("finalTarget.obj");
-        Model bullet("finalBullet.obj");
-        Model canon("finalCanon.obj");
+
+
+        /*--[FRAME IMGUI]-----------*/
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::SetNextWindowSize(ImVec2(SCR_WIDTH * 0.24f, SCR_HEIGHT * 0.15f));
+        ImGui::SetNextWindowPos(ImVec2(15, 15));
+
+        /*--[CODIGO IMGUI]-----------*/
+
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.FrameBorderSize = 1.0f;
+        ImGuiWindowFlags window_flags = 0;
+        window_flags |= ImGuiWindowFlags_MenuBar;
+        window_flags |= ImGuiWindowFlags_NoCollapse;
+        ImVec2 buttonSize = ImVec2(120.0f, 30.f);
+
+
+        ImGui::Begin("Camera Controls");
+            ImGui::SetWindowFontScale(1.6);
+            ImGui::Spacing();
+            ImGui::Indent(88.0f);
+            if (ImGui::Button("Move UP", buttonSize)) {
+                camera.ProcessKeyboard(FORWARD, deltaTime);
+            }
+            ImGui::Unindent(88.0f);
+            ImGui::Spacing();
+
+            if (ImGui::Button("Move LEFT", buttonSize)) {
+                camera.ProcessKeyboard(LEFT, deltaTime);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Move DOWN", buttonSize)) {
+                camera.ProcessKeyboard(BACKWARD, deltaTime);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Move RIGHT", buttonSize)) {
+                camera.ProcessKeyboard(RIGHT, deltaTime);
+            }
+        ImGui::End();
+
+        static float angleX = 0.0f;
+        static float angleY = 0.0f;
+        static float angleZ = 0.0f;
+        static float velocity = 10.0f;
+
+        ImGui::SetNextWindowSize(ImVec2(SCR_WIDTH * 0.24f, SCR_HEIGHT * 0.18f));
+        ImGui::SetNextWindowPos(ImVec2(15, 200));
+        ImGui::Begin("Shoot Controls");
+            ImGui::SetWindowFontScale(1.6);
+            ImGui::SliderAngle("Angle XY", &angleZ, -20.0, 20.0);
+            ImGui::SliderAngle("Angle XZ", &angleY, -20.0, 20.0);
+            ImGui::SliderAngle("Angle YZ", &angleX, 0.0, 40.0);
+            ImGui::SliderFloat("Velocity", &velocity, 1.0, 30.0);
+        ImGui::End();
+
+        ImGui::SetNextWindowSize(ImVec2(SCR_WIDTH * 0.20f, SCR_HEIGHT * 0.15f));
+        ImGui::SetNextWindowPos(ImVec2(15, 450));
+        static int numberShots = 0;
+
+        ImGui::Begin("User Panel");
+            ImGui::SetWindowFontScale(1.6);
+            ImGui::TextWrapped("Shots fired: ");
+            ImGui::SameLine();
+            string strShots = std::to_string(numberShots);
+            const char* nShots = strShots.c_str();
+            ImGui::Text(nShots);
+            if (ImGui::Button("Shoot", buttonSize)) {
+                glfwSetTime(0);
+                numberShots++;
+                activated = false;
+            }
+        ImGui::End();
+
+        ImGui::SetNextWindowSize(ImVec2(SCR_WIDTH * 0.24f, SCR_HEIGHT * 0.15f));
+        ImGui::SetNextWindowPos(ImVec2(15, 650));
+        static int score = 0;
+
+        ImGui::Begin("Score");
+            ImGui::SetWindowFontScale(1.6);
+            ImGui::TextWrapped("Current Score: ");
+            ImGui::SameLine();
+            string strScore = std::to_string(score);
+            const char* nScore = strScore.c_str();
+            ImGui::Text(nScore);
+        ImGui::End();
 
         // Drawing Tank
         tankShader.use();
@@ -145,6 +258,148 @@ int main()
         modelBullet = glm::scale(modelBullet, glm::vec3(0.3f, 0.3, 0.3f));
         bulletShader.setMat4("projection", projection);
         bulletShader.setMat4("view", view);
+
+        int dAngleX = angleX * toDegrees;
+        int dAngleY = angleY * toDegrees;
+        int dAngleZ = angleZ * toDegrees;
+
+        time -= delta;
+        if (!activated) {
+            // SCORE + 20
+            if (round(time) == 0 && round(dAngleX) == 26 && round(velocity) == 30) {
+                std::cout << "dAngleX: " << dAngleX << std::endl;
+                std::cout << "dAngleY: " << dAngleY << std::endl;
+                std::cout << "dAngleZ: " << dAngleZ << std::endl;
+
+                if (round(dAngleY) == 0 || round(dAngleY) == 1 || round(dAngleY) == 2 || round(dAngleY) == 3) {
+                    while (oneTime) {
+                        std::cout << "+25" << std::endl;
+                        score = score + 25;
+                        oneTime = false;
+                    }
+                }
+                if (round(dAngleY) == 11 || round(dAngleY) == 12) {
+                    while (oneTime) {
+                        std::cout << "+20" << std::endl;
+                        score = score + 20;
+                        oneTime = false;
+                    }
+                }
+                if (round(dAngleY) == -7 || round(dAngleY) == -8 || round(dAngleY) == -9) {
+                    while (oneTime) {
+                        std::cout << "+30" << std::endl;
+                        score = score + 30;
+                        oneTime = false;
+                    }
+                }
+            }
+            else {
+                oneTime = true;
+            }
+
+            if (round(time) == 0 && round(dAngleX) == 27 && round(velocity) == 25) {
+                std::cout << "dAngleX: " << dAngleX << std::endl;
+                std::cout << "dAngleY: " << dAngleY << std::endl;
+                std::cout << "dAngleZ: " << dAngleZ << std::endl;
+
+                if (round(dAngleY) == 1 || round(dAngleY) == 2 || round(dAngleY) == 3) {
+                    while (oneTime2) {
+                        std::cout << "40" << std::endl;
+                        score = score + 40;
+                        oneTime2 = false;
+                    }
+                }
+                if (round(dAngleY) == 11 || round(dAngleY) == 12) {
+                    while (oneTime2) {
+                        std::cout << "+35" << std::endl;
+                        score = score + 35;
+                        oneTime2 = false;
+                    }
+                }
+                if (round(dAngleY) == -7 || round(dAngleY) == -8 || round(dAngleY) == -9) {
+                    while (oneTime2) {
+                        std::cout << "+45" << std::endl;
+                        score = score + 45;
+                        oneTime2 = false;
+                    }
+                }
+            }
+            else {
+                oneTime2 = true;
+            }
+            if (round(time) == 0 && round(dAngleX) == 28 && round(velocity) == 22) {
+                std::cout << "dAngleX: " << dAngleX << std::endl;
+                std::cout << "dAngleY: " << dAngleY << std::endl;
+                std::cout << "dAngleZ: " << dAngleZ << std::endl;
+
+                if (round(dAngleY) == 1 || round(dAngleY) == 2 || round(dAngleY) == 3) {
+                    while (oneTime3) {
+                        std::cout << "+55" << std::endl;
+                        score = score + 55;
+                        oneTime3 = false;
+                    }
+                }
+                if (round(dAngleY) == 11 || round(dAngleY) == 12) {
+                    while (oneTime3) {
+                        std::cout << "+50" << std::endl;
+                        score = score + 50;
+                        oneTime3= false;
+                    }
+                }
+                if (round(dAngleY) == -7 || round(dAngleY) == -8 || round(dAngleY) == -9) {
+                    while (oneTime3) {
+                        std::cout << "+60" << std::endl;
+                        score = score + 60;
+                        oneTime3 = false;
+                    }
+                }
+            }
+            else {
+                oneTime3 = true;
+            }
+
+            if (round(time) == 0 && round(dAngleX) == 28 && round(velocity) == 27) {
+                std::cout << "dAngleX: " << dAngleX << std::endl;
+                std::cout << "dAngleY: " << dAngleY << std::endl;
+                std::cout << "dAngleZ: " << dAngleZ << std::endl;
+
+                if (round(dAngleY) == -17 || round(dAngleY) == -16 || round(dAngleY) == -15) {
+                    while (oneTime4) {
+                        std::cout << "+70" << std::endl;
+                        score = score + 70;
+                        oneTime4 = false;
+                    }
+                }
+            }
+            else {
+                oneTime4 = true;
+            }
+
+            if (round(time) == -1 && round(dAngleX) == 28 && round(velocity) == 23) {
+
+                if (round(dAngleY) == -17 || round(dAngleY) == -16 || round(dAngleY) == -15) {
+                    while (oneTime5) {
+                        std::cout << "+80" << std::endl;
+                        score = score + 80;
+                        oneTime5 = false;
+                    }
+                }
+            }
+            else {
+                oneTime5 = true;
+            }
+
+            // Parabolic Movement
+            double timeSquare = pow(currentFrame, 2);
+            static float parabolicoY = 0;
+            static float U = -currentFrame * velocity * 0.5;
+            parabolicoY = U * sin(angleX - 0.2) * currentFrame - (g * timeSquare / 2.0);
+
+            modelBullet = glm::translate(modelBullet, glm::vec3(0.0f, 0.0f, -currentFrame * velocity));
+            modelBullet = glm::translate(modelBullet, glm::vec3(0.0f, parabolicoY * 0.35, 0.0f));
+        }
+
+
 
         bulletShader.setMat4("model", modelBullet);
         bullet.Draw(bulletShader);
