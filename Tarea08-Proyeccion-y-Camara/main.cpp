@@ -399,7 +399,37 @@ int main()
             modelBullet = glm::translate(modelBullet, glm::vec3(0.0f, parabolicoY * 0.35, 0.0f));
         }
 
+        // Turn off/ on camera movement
 
+        if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+            glfwSetCursorPosCallback(window, mouse_callback);
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+        if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
+            glfwSetCursorPosCallback(window, NULL);
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+
+        // Shot Function
+        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+            glfwSetTime(0);
+            numberShots++;
+            activated = false;
+        }
+        // Print Camera
+        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+            std::cout << "X: " << camera.Position.x << std::endl;
+            std::cout << "Y: " << camera.Position.y << std::endl;
+            std::cout << "Z: " << camera.Position.z << std::endl;
+        }
+
+        // Print Angles
+        if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
+            std::cout << "AngleX: " << dAngleX << std::endl;
+            std::cout << "AngleY: " << dAngleY << std::endl;
+            std::cout << "AngleZ: " << dAngleZ << std::endl;
+            std::cout << "Velocity: " << round(velocity) << std::endl;
+        }
 
         bulletShader.setMat4("model", modelBullet);
         bullet.Draw(bulletShader);
