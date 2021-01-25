@@ -10,10 +10,20 @@
 #include <math.h>
 
 #include <learnopengl/shader_m.h>
+#include <learnopengl/camera.h>
 #include <learnopengl/model.h>
+
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 
 #include <iostream>
 #include <string>
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void processInput(GLFWwindow* window);
 
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -24,6 +34,7 @@ const unsigned int SCR_WIDTH = 1800;
 const unsigned int SCR_HEIGHT = 1000;
 
 // camera
+Camera camera(glm::vec3(-0.0791466f, 4.71589f, 6.1079f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -53,6 +64,9 @@ int main()
     }
 
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
     glfwSetWindowPos(window, SCR_WIDTH/32, SCR_HEIGHT/25);
 
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -78,10 +92,16 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        processInput(window);
+
+        float delta = currentFrame - previous;
+        previous = currentFrame;
 
         glClearColor(39.0f/255.0f, 82.0f / 255.0f, 117.0f / 255.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         
         Model tank("finalTank.obj");
         Model target("finalTarget.obj");
@@ -153,4 +173,41 @@ int main()
 
     glfwTerminate();
     return 0;
+}
+
+void processInput(GLFWwindow* window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; 
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera.ProcessMouseScroll(yoffset);
 }
