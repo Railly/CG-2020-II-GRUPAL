@@ -32,3 +32,7 @@ Este repositorio contienen los trabajos grupales del curso de Computación Gráf
 
 ![enter image description here](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Tarea08-Proyeccion-y-Camara/img/descarga.png)
 
+## **6. Proyecto Final - Realidad Aumentada**
+
+![enter image description here](https://github.com/Railly/CG-2020-II-GRUPAL/blob/main/Proyecto%20Final/Sprint-2/resources/ss.png)
+
